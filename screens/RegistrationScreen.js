@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker'; // Import Picker from @react-native-picker/picker
 import NLSLogo from '../assets/nlslogo.png'; // Import your logo image
 import Colors from '../constants/Colors'; // Adjust path as per your project structure
+import api from '../api'; // Import your Axios instance
 
 const RegistrationScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState('');
@@ -22,17 +23,26 @@ const RegistrationScreen = ({ navigation }) => {
   }, [firstName, lastName, email, phoneNumber, password]);
 
   const handleRegister = () => {
-    // Implement your registration logic here
-    console.log('First Name:', firstName);
-    console.log('Last Name:', lastName);
-    console.log('Email:', email);
-    console.log('Phone Number:', phoneNumber);
-    console.log('Password:', password);
-    console.log('Referral Email:', referralEmail);
-    console.log('Heard About:', heardAbout);
-
-    // Navigate to the Login screen after successful registration
-    navigation.navigate('Login');
+    // Implement registration logic
+    api.post('/register/', {
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      phone_number: phoneNumber,
+      password: password,
+      referral_email: referralEmail,
+      heard_about: heardAbout,
+    })
+    .then(response => {
+      console.log('Registration Successful:', response.data);
+      // Navigate to the Login screen after successful registration
+      navigation.navigate('Login');
+    })
+    .catch(error => {
+      console.error('Registration Error:', error.response ? error.response.data : error.message);
+      // Handle error (e.g., show an alert or error message)
+      Alert.alert('Registration Failed', error.response ? error.response.data.detail : 'An error occurred. Please try again.');
+    });
   };
 
   return (
